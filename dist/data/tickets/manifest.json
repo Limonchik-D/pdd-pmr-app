@@ -1,0 +1,288 @@
+{
+  "version": 1,
+  "source": "ПДД ПМР — экзаменационные билеты (адаптация pdd_russia A_B)",
+  "ticketCount": 40,
+  "questionCount": 20,
+  "tickets": [
+    {
+      "number": 1,
+      "id": "01",
+      "title": "Билет № 1",
+      "questionCount": 20,
+      "dataFile": "tickets/01.json"
+    },
+    {
+      "number": 2,
+      "id": "02",
+      "title": "Билет № 2",
+      "questionCount": 20,
+      "dataFile": "tickets/02.json"
+    },
+    {
+      "number": 3,
+      "id": "03",
+      "title": "Билет № 3",
+      "questionCount": 20,
+      "dataFile": "tickets/03.json"
+    },
+    {
+      "number": 4,
+      "id": "04",
+      "title": "Билет № 4",
+      "questionCount": 20,
+      "dataFile": "tickets/04.json"
+    },
+    {
+      "number": 5,
+      "id": "05",
+      "title": "Билет № 5",
+      "questionCount": 20,
+      "dataFile": "tickets/05.json"
+    },
+    {
+      "number": 6,
+      "id": "06",
+      "title": "Билет № 6",
+      "questionCount": 20,
+      "dataFile": "tickets/06.json"
+    },
+    {
+      "number": 7,
+      "id": "07",
+      "title": "Билет № 7",
+      "questionCount": 20,
+      "dataFile": "tickets/07.json"
+    },
+    {
+      "number": 8,
+      "id": "08",
+      "title": "Билет № 8",
+      "questionCount": 20,
+      "dataFile": "tickets/08.json"
+    },
+    {
+      "number": 9,
+      "id": "09",
+      "title": "Билет № 9",
+      "questionCount": 20,
+      "dataFile": "tickets/09.json"
+    },
+    {
+      "number": 10,
+      "id": "10",
+      "title": "Билет № 10",
+      "questionCount": 20,
+      "dataFile": "tickets/10.json"
+    },
+    {
+      "number": 11,
+      "id": "11",
+      "title": "Билет № 11",
+      "questionCount": 20,
+      "dataFile": "tickets/11.json"
+    },
+    {
+      "number": 12,
+      "id": "12",
+      "title": "Билет № 12",
+      "questionCount": 20,
+      "dataFile": "tickets/12.json"
+    },
+    {
+      "number": 13,
+      "id": "13",
+      "title": "Билет № 13",
+      "questionCount": 20,
+      "dataFile": "tickets/13.json"
+    },
+    {
+      "number": 14,
+      "id": "14",
+      "title": "Билет № 14",
+      "questionCount": 20,
+      "dataFile": "tickets/14.json"
+    },
+    {
+      "number": 15,
+      "id": "15",
+      "title": "Билет № 15",
+      "questionCount": 20,
+      "dataFile": "tickets/15.json"
+    },
+    {
+      "number": 16,
+      "id": "16",
+      "title": "Билет № 16",
+      "questionCount": 20,
+      "dataFile": "tickets/16.json"
+    },
+    {
+      "number": 17,
+      "id": "17",
+      "title": "Билет № 17",
+      "questionCount": 20,
+      "dataFile": "tickets/17.json"
+    },
+    {
+      "number": 18,
+      "id": "18",
+      "title": "Билет № 18",
+      "questionCount": 20,
+      "dataFile": "tickets/18.json"
+    },
+    {
+      "number": 19,
+      "id": "19",
+      "title": "Билет № 19",
+      "questionCount": 20,
+      "dataFile": "tickets/19.json"
+    },
+    {
+      "number": 20,
+      "id": "20",
+      "title": "Билет № 20",
+      "questionCount": 20,
+      "dataFile": "tickets/20.json"
+    },
+    {
+      "number": 21,
+      "id": "21",
+      "title": "Билет № 21",
+      "questionCount": 20,
+      "dataFile": "tickets/21.json"
+    },
+    {
+      "number": 22,
+      "id": "22",
+      "title": "Билет № 22",
+      "questionCount": 20,
+      "dataFile": "tickets/22.json"
+    },
+    {
+      "number": 23,
+      "id": "23",
+      "title": "Билет № 23",
+      "questionCount": 20,
+      "dataFile": "tickets/23.json"
+    },
+    {
+      "number": 24,
+      "id": "24",
+      "title": "Билет № 24",
+      "questionCount": 20,
+      "dataFile": "tickets/24.json"
+    },
+    {
+      "number": 25,
+      "id": "25",
+      "title": "Билет № 25",
+      "questionCount": 20,
+      "dataFile": "tickets/25.json"
+    },
+    {
+      "number": 26,
+      "id": "26",
+      "title": "Билет № 26",
+      "questionCount": 20,
+      "dataFile": "tickets/26.json"
+    },
+    {
+      "number": 27,
+      "id": "27",
+      "title": "Билет № 27",
+      "questionCount": 20,
+      "dataFile": "tickets/27.json"
+    },
+    {
+      "number": 28,
+      "id": "28",
+      "title": "Билет № 28",
+      "questionCount": 20,
+      "dataFile": "tickets/28.json"
+    },
+    {
+      "number": 29,
+      "id": "29",
+      "title": "Билет № 29",
+      "questionCount": 20,
+      "dataFile": "tickets/29.json"
+    },
+    {
+      "number": 30,
+      "id": "30",
+      "title": "Билет № 30",
+      "questionCount": 20,
+      "dataFile": "tickets/30.json"
+    },
+    {
+      "number": 31,
+      "id": "31",
+      "title": "Билет № 31",
+      "questionCount": 20,
+      "dataFile": "tickets/31.json"
+    },
+    {
+      "number": 32,
+      "id": "32",
+      "title": "Билет № 32",
+      "questionCount": 20,
+      "dataFile": "tickets/32.json"
+    },
+    {
+      "number": 33,
+      "id": "33",
+      "title": "Билет № 33",
+      "questionCount": 20,
+      "dataFile": "tickets/33.json"
+    },
+    {
+      "number": 34,
+      "id": "34",
+      "title": "Билет № 34",
+      "questionCount": 20,
+      "dataFile": "tickets/34.json"
+    },
+    {
+      "number": 35,
+      "id": "35",
+      "title": "Билет № 35",
+      "questionCount": 20,
+      "dataFile": "tickets/35.json"
+    },
+    {
+      "number": 36,
+      "id": "36",
+      "title": "Билет № 36",
+      "questionCount": 20,
+      "dataFile": "tickets/36.json"
+    },
+    {
+      "number": 37,
+      "id": "37",
+      "title": "Билет № 37",
+      "questionCount": 20,
+      "dataFile": "tickets/37.json"
+    },
+    {
+      "number": 38,
+      "id": "38",
+      "title": "Билет № 38",
+      "questionCount": 20,
+      "dataFile": "tickets/38.json"
+    },
+    {
+      "number": 39,
+      "id": "39",
+      "title": "Билет № 39",
+      "questionCount": 20,
+      "dataFile": "tickets/39.json"
+    },
+    {
+      "number": 40,
+      "id": "40",
+      "title": "Билет № 40",
+      "questionCount": 20,
+      "dataFile": "tickets/40.json"
+    }
+  ]
+}

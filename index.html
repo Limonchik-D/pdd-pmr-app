@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ПДД ПМР — Тесты и теория</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#0f172a" />
+<meta name="description" content="Тесты и теория ПДД ПМР — подготовка к экзамену в МРЭО ГАИ" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        pmr: { bg: '#0f172a', surface: '#1e293b', accent: '#4f46e5', ok: '#10b981', err: '#ef4444' }
+      },
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+    }
+  }
+};
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .card-accent-warning { border-left-color: #f59e0b; }
+  .card-accent-priority { border-left-color: #f97316; }
+  .card-accent-prohibition { border-left-color: #ef4444; }
+  .card-accent-mandatory { border-left-color: #3b82f6; }
+  .card-accent-special { border-left-color: #8b5cf6; }
+  .card-accent-info { border-left-color: #06b6d4; }
+  .card-accent-service { border-left-color: #10b981; }
+  .card-accent-additional { border-left-color: #64748b; }
+  .card-accent-marking { border-left-color: #f8fafc; }
+  .answer-btn.correct-reveal { border-color: #10b981 !important; background: rgba(16,185,129,.12); }
+  .q-tile { border-width: 2px; transition: transform .15s, box-shadow .15s; }
+  .q-tile-correct { background: rgba(16,185,129,.35); border-color: #10b981; color: #d1fae5; font-weight: 700; }
+  .q-tile-wrong { background: rgba(239,68,68,.35); border-color: #ef4444; color: #fecaca; font-weight: 700; }
+  .q-tile-skip { background: rgba(100,116,139,.25); border-color: #64748b; color: #94a3b8; }
+  .q-tile-active { box-shadow: 0 0 0 3px rgba(129,140,248,.6); transform: scale(1.08); }
+  .admin-tab.active { background: #4f46e5; color: #fff; }
+  img.sign-img { max-height: 180px; object-fit: contain; margin: 0 auto; }
+  .nav-btn { padding: 0.4rem 0.85rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #94a3b8; transition: background .15s, color .15s; }
+  .nav-btn:hover { color: #fff; background: rgba(51,65,85,.6); }
+  .nav-btn.nav-active { background: #4f46e5; color: #fff; }
+  .theory-link.bg-indigo-600\/30 { background: rgba(79,70,229,.3); color: #c7d2fe; font-weight: 600; }
+  .answer-btn.exam-selected { border-color: #6366f1 !important; background: rgba(99,102,241,.15); }
+  .exam-q-nav { width: 2rem; height: 2rem; font-size: 0.7rem; border-width: 2px; }
+  .exam-q-nav.answered { border-color: #6366f1; color: #a5b4fc; }
+  .exam-q-nav.current { box-shadow: 0 0 0 2px rgba(129,140,248,.7); transform: scale(1.1); }
+  .timer-warn { color: #f87171 !important; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: .6; } }
+  .theory-def { background: rgba(30,41,59,.6); border-left: 4px solid #6366f1; border-radius: 0 0.75rem 0.75rem 0; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .theory-term { font-weight: 700; color: #c7d2fe; font-size: 1.05rem; }
+  .theory-def-body { color: #cbd5e1; line-height: 1.65; margin-top: 0.35rem; font-size: 0.925rem; }
+  .theory-rule { background: rgba(15,23,42,.5); border: 1px solid rgba(51,65,85,.8); border-radius: 0.75rem; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .theory-rule-num { font-weight: 700; color: #818cf8; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+  .theory-signs { display: flex; flex-wrap: wrap; gap: 1.25rem; justify-content: center; margin: 1rem 0 1.25rem; padding: 1rem; background: rgba(15,23,42,.4); border-radius: 0.75rem; border: 1px solid rgba(51,65,85,.6); }
+  .theory-sign-card { text-align: center; min-width: 5rem; }
+  .theory-sign-card img { max-height: 5.5rem; margin: 0 auto 0.35rem; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
+  .theory-sign-num { font-size: 0.8rem; font-weight: 700; color: #94a3b8; }
+  .group-card { transition: transform .15s, box-shadow .15s, border-color .15s; }
+  .group-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.25); border-color: rgba(99,102,241,.5); }
+  .results-verdict-pass { background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.45); }
+  .results-verdict-fail { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.4); }
+  #results-status-line.pass { color: #6ee7b7; }
+  #results-status-line.fail { color: #fca5a5; }
+  .ticket-cell { transition: transform .12s, border-color .12s, background .12s; }
+  .ticket-cell:hover { transform: scale(1.04); border-color: rgba(245,158,11,.6); }
+  .ticket-cell.passed { background: rgba(16,185,129,.15); border-color: rgba(16,185,129,.5); color: #6ee7b7; }
+  .ticket-cell.failed { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.35); }
+</style>
+</head>
+<body class="bg-pmr-bg text-slate-100 font-sans min-h-screen antialiased pt-14">
+
+<!-- ═══ TOP NAV ═══ -->
+<nav class="fixed top-0 inset-x-0 z-50 bg-slate-900/95 border-b border-slate-700 backdrop-blur-sm">
+  <div class="max-w-6xl mx-auto px-4 flex items-center gap-2 h-14">
+    <button onclick="showScreen('home')" class="font-bold text-sm mr-auto hover:text-indigo-300 transition">🚗 ПДД ПМР</button>
+    <button class="nav-btn nav-active" data-screen="home" onclick="showScreen('home')">Тесты</button>
+    <button class="nav-btn" data-screen="progress" onclick="openProgress()">Прогресс</button>
+    <button class="nav-btn" data-screen="theory" onclick="openTheory()">Теория ПДД</button>
+  </div>
+</nav>
+
+<!-- ═══ EXAM TICKET CONFIRM MODAL ═══ -->
+<div id="exam-confirm-modal" class="hidden fixed inset-0 z-[90] bg-black/75 flex items-center justify-center p-4">
+  <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+    <h3 id="exam-confirm-title" class="text-xl font-bold mb-2 text-center">🎓 Билет № 1</h3>
+    <p id="exam-confirm-desc" class="text-slate-400 text-sm mb-4 text-center"></p>
+    <ul class="text-sm text-slate-300 space-y-2 mb-6 bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+      <li>⏱ <strong id="exam-confirm-time">20</strong> минут на билет</li>
+      <li>📝 <strong id="exam-confirm-count">20</strong> вопросов</li>
+      <li>✅ Допускается не более <strong id="exam-confirm-errors">2</strong> ошибок</li>
+      <li>🔇 Правильные ответы — только после завершения</li>
+    </ul>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button onclick="confirmStartExamTicket()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-semibold py-3 px-6 rounded-xl transition">Начать билет</button>
+      <button onclick="closeExamConfirm()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-3 px-6 rounded-xl transition border border-slate-600">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MARATHON CONFIRM MODAL ═══ -->
+<div id="marathon-confirm-modal" class="hidden fixed inset-0 z-[90] bg-black/75 flex items-center justify-center p-4">
+  <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+    <h3 class="text-xl font-bold mb-2 text-center">🏃 Марафон</h3>
+    <p id="marathon-confirm-desc" class="text-slate-400 text-sm mb-4 text-center"></p>
+    <ul class="text-sm text-slate-300 space-y-2 mb-6 bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+      <li>📝 <strong id="marathon-confirm-count">—</strong> вопросов подряд</li>
+      <li>💡 Подсказки сразу после ответа</li>
+      <li>⏸ Можно выйти и продолжить позже</li>
+    </ul>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button onclick="confirmStartMarathon()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white font-semibold py-3 px-6 rounded-xl transition">Начать марафон</button>
+      <button onclick="closeMarathonConfirm()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-3 px-6 rounded-xl transition border border-slate-600">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TEST CONFIRM MODAL ═══ -->
+<div id="test-confirm-modal" class="hidden fixed inset-0 z-[90] bg-black/75 flex items-center justify-center p-4">
+  <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 w-full max-w-md shadow-2xl text-center">
+    <h3 class="text-xl font-bold mb-2">Готовы начать?</h3>
+    <p id="test-confirm-topic" class="text-indigo-300 font-semibold mb-1"></p>
+    <p class="text-slate-400 text-sm mb-6">Вопросов в тесте: <strong id="test-confirm-count" class="text-white">—</strong></p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <button onclick="confirmStartTest()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition">
+        Начать тест
+      </button>
+      <button onclick="closeTestConfirm()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-3 px-6 rounded-xl transition border border-slate-600">
+        Выйти
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN LOGIN MODAL ═══ -->
+<div id="admin-login-modal" class="hidden fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
+  <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <h3 class="text-lg font-bold mb-1">Вход в админ-панель</h3>
+    <p class="text-slate-400 text-sm mb-4">ПДД ПМР — управление контентом</p>
+    <input id="admin-password" type="password" placeholder="Пароль" autocomplete="off"
+      class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 mb-3 focus:outline-none focus:border-indigo-500" />
+    <p id="admin-login-error" class="text-red-400 text-sm mb-3 hidden"></p>
+    <div class="flex gap-2">
+      <button onclick="adminLogin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 rounded-lg py-2.5 font-semibold transition">Войти</button>
+      <button onclick="closeAdminLogin()" class="px-4 bg-slate-700 hover:bg-slate-600 rounded-lg transition">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN: HOME ═══ -->
+<section id="screen-home" class="screen active pb-16">
+  <div id="banners-home" class="max-w-4xl mx-auto px-4 pt-4 space-y-2"></div>
+  <header class="text-center px-4 py-12 border-b border-slate-700/60 bg-gradient-to-b from-indigo-950/40 to-transparent">
+    <span id="hero-eyebrow" class="inline-block text-xs font-semibold tracking-widest uppercase text-indigo-300 bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 rounded-full mb-4"></span>
+    <h1 id="hero-title" class="text-3xl sm:text-4xl font-extrabold mb-3 leading-tight"></h1>
+    <p id="hero-subtitle" class="text-slate-400 max-w-xl mx-auto text-sm sm:text-base mb-6"></p>
+    <div class="flex justify-center gap-8 flex-wrap">
+      <div><div class="text-2xl font-bold text-indigo-400" id="stat-topics">—</div><div class="text-xs text-slate-500 uppercase">Разделов</div></div>
+      <div><div class="text-2xl font-bold text-indigo-400" id="stat-questions">—</div><div class="text-xs text-slate-500 uppercase">Вопросов</div></div>
+      <div><div class="text-2xl font-bold text-indigo-400">100%</div><div class="text-xs text-slate-500 uppercase">Бесплатно</div></div>
+    </div>
+  </header>
+  <div class="max-w-5xl mx-auto px-4 mt-8">
+    <div id="quick-tests" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+    <div class="flex items-center gap-3 mb-5">
+      <h2 class="text-lg font-bold">Тесты по темам</h2>
+      <div class="flex-1 h-px bg-slate-700"></div>
+    </div>
+    <div id="group-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <p id="source-note" class="text-center text-xs text-slate-600 mt-8"></p>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: EXAM (40 билетов) ═══ -->
+<section id="screen-exam" class="screen pb-16">
+  <div class="max-w-5xl mx-auto px-4 pt-6">
+    <button onclick="showScreen('home')" class="text-slate-400 hover:text-white text-sm flex items-center gap-1 mb-5 transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      На главную
+    </button>
+    <div id="exam-header" class="mb-6"></div>
+    <div id="exam-tickets-grid" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-2 sm:gap-3"></div>
+    </div>
+</section>
+
+<!-- ═══ SCREEN: GROUP ═══ -->
+<section id="screen-group" class="screen pb-16">
+  <div class="max-w-5xl mx-auto px-4 pt-6">
+    <button onclick="showScreen('home')" class="text-slate-400 hover:text-white text-sm flex items-center gap-1 mb-5 transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Все разделы
+    </button>
+    <div id="group-header" class="mb-6"></div>
+    <div id="group-tests-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: TEST ═══ -->
+<section id="screen-test" class="screen pb-20">
+  <div id="banners-test" class="max-w-3xl mx-auto px-4 pt-3 space-y-2"></div>
+  <div class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center gap-4 flex-wrap">
+    <button onclick="exitTest()" class="text-slate-400 hover:text-white text-sm flex items-center gap-1 transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Назад
+    </button>
+    <span id="test-topic-badge" class="text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-full"></span>
+    <span id="exam-timer" class="hidden text-sm font-mono font-bold text-amber-400 ml-auto">20:00</span>
+    <span id="test-progress-wrap" class="text-sm text-slate-400 ml-auto"><strong id="progress-cur" class="text-white">1</strong> / <span id="progress-total">20</span></span>
+  </div>
+  <div class="h-1 bg-slate-800"><div id="progress-fill" class="h-full bg-indigo-500 transition-all duration-300" style="width:0%"></div></div>
+  <div class="max-w-2xl mx-auto px-4 py-6">
+    <div id="question-img-wrap" class="bg-slate-800/60 rounded-xl p-4 mb-5 min-h-[120px] flex items-center justify-center border border-slate-700/50"></div>
+    <div id="question-num" class="text-xs text-indigo-400 font-semibold uppercase tracking-wide mb-2">Вопрос 1</div>
+    <div id="question-text" class="text-lg font-semibold leading-snug mb-5"></div>
+    <div id="answers-wrap" class="space-y-3"></div>
+    <div id="exam-nav-wrap" class="hidden mt-8 pt-6 border-t border-slate-700">
+      <p class="text-xs text-slate-500 mb-2">Навигация по вопросам</p>
+      <div id="exam-q-nav" class="flex flex-wrap gap-1.5"></div>
+    </div>
+  </div>
+  <div class="fixed bottom-0 inset-x-0 p-4 bg-gradient-to-t from-pmr-bg via-pmr-bg/95 to-transparent">
+    <div class="max-w-2xl mx-auto flex flex-col gap-2">
+      <button id="btn-finish-exam" onclick="finishExamEarly()" class="hidden w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-3 rounded-xl transition">
+        ✓ Завершить экзамен
+      </button>
+      <button id="btn-next" onclick="nextQuestion()" class="hidden w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-indigo-900/40">
+        Следующий вопрос →
+    </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: RESULTS ═══ -->
+<section id="screen-results" class="screen pb-16">
+  <div class="text-center px-4 py-8 border-b border-slate-700/60">
+    <div id="results-verdict" class="mb-6 mx-auto max-w-lg rounded-2xl border px-6 py-5 text-left">
+      <p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Итог</p>
+      <p id="results-score-line" class="text-2xl sm:text-3xl font-extrabold text-white mb-1">—</p>
+      <p id="results-rules-line" class="text-sm text-slate-400 mb-3">—</p>
+      <p id="results-status-line" class="text-lg font-bold">—</p>
+    </div>
+    <h2 class="text-2xl font-bold mb-1">Результаты</h2>
+    <p id="results-topic-label" class="text-slate-400 text-sm"></p>
+  </div>
+  <div class="max-w-2xl mx-auto px-4 py-6">
+    <div class="flex flex-col sm:flex-row items-center gap-6 mb-8">
+      <div class="relative w-28 h-28">
+        <svg class="w-full h-full -rotate-90" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#334155" stroke-width="10"/>
+          <circle id="ring-fill" cx="60" cy="60" r="52" fill="none" stroke="#10b981" stroke-width="10"
+            stroke-dasharray="327" stroke-dashoffset="327" stroke-linecap="round" class="transition-all duration-700"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span id="score-pct" class="text-2xl font-extrabold">0%</span>
+          <span class="text-[10px] text-slate-500 uppercase">результат</span>
+        </div>
+      </div>
+      <div class="flex gap-4 flex-wrap justify-center">
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-2 text-sm"><span class="text-slate-400">Верно:</span> <strong id="score-correct" class="text-emerald-400">0</strong></div>
+        <div class="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2 text-sm"><span class="text-slate-400">Ошибок:</span> <strong id="score-wrong" class="text-red-400">0</strong></div>
+        <div class="bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-sm"><span class="text-slate-400">Всего:</span> <strong id="score-total">0</strong></div>
+      </div>
+    </div>
+    <h3 class="font-bold mb-2">Разбор вопросов</h3>
+    <p class="text-xs text-slate-500 mb-2">Нажми на номер, чтобы увидеть свой и правильный ответ</p>
+    <div class="flex gap-4 text-xs mb-3">
+      <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span> Верно</span>
+      <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-500 inline-block"></span> Ошибка</span>
+      <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-500 inline-block"></span> Без ответа</span>
+    </div>
+    <div id="q-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-6"></div>
+    <div id="review-panel" class="hidden bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+      <div class="p-4 border-b border-slate-700 flex gap-3">
+        <span id="review-q-num" class="shrink-0 w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-sm font-bold"></span>
+        <p id="review-q-text" class="text-sm leading-snug"></p>
+      </div>
+      <div id="review-answers-wrap" class="p-4 space-y-2"></div>
+      <div class="p-4 border-t border-slate-700 text-center">
+        <button id="btn-explain" onclick="toggleExplanation()" class="inline-flex items-center gap-2 border border-slate-600 hover:border-indigo-500 text-slate-300 hover:text-indigo-300 px-5 py-2.5 rounded-lg text-sm font-semibold transition">
+          💡 Объяснение
+        </button>
+      </div>
+      <div id="explanation-box" class="hidden px-4 pb-4">
+        <div id="explanation-text" class="bg-slate-900/80 border-l-4 border-indigo-500 rounded-r-lg p-4 text-sm text-slate-300 leading-relaxed"></div>
+      </div>
+    </div>
+    <div class="flex justify-center gap-3 mt-8 flex-wrap">
+      <button onclick="retryTest()" class="border border-slate-600 hover:border-slate-400 text-slate-300 px-5 py-2.5 rounded-lg text-sm font-semibold transition">↻ Пройти снова</button>
+      <button id="btn-results-exam" onclick="openExamScreen()" class="hidden border border-amber-600/50 hover:border-amber-500 text-amber-300 px-5 py-2.5 rounded-lg text-sm font-semibold transition">К билетам</button>
+      <button onclick="showScreen('home')" class="bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 rounded-lg text-sm font-semibold transition">В главное меню</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: PROGRESS (фаза 5) ═══ -->
+<section id="screen-progress" class="screen pb-16">
+  <div class="max-w-3xl mx-auto px-4 pt-8">
+    <h2 class="text-2xl font-bold mb-1">Мой прогресс</h2>
+    <p class="text-slate-400 text-sm mb-6">Статистика сохраняется в вашем браузере</p>
+    <div id="progress-dashboard"></div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: THEORY ═══ -->
+<section id="screen-theory" class="screen pb-16">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row min-h-[calc(100vh-3.5rem)]">
+    <aside id="theory-sidebar" class="md:w-72 shrink-0 bg-slate-800/40 border-b md:border-b-0 md:border-r border-slate-700 md:sticky md:top-14 md:self-start md:max-h-[calc(100vh-3.5rem)] md:overflow-y-auto">
+      <p class="p-4 text-slate-500 text-sm">Загрузка оглавления…</p>
+    </aside>
+    <main id="theory-content" class="flex-1 p-5 md:p-8 min-h-[50vh]">
+      <p class="text-slate-400">Выберите раздел в оглавлении слева</p>
+    </main>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: ADMIN ═══ -->
+<section id="screen-admin" class="screen pb-16 min-h-screen">
+  <div class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+    <div class="flex items-center gap-3">
+      <span class="text-lg font-bold">⚙️ Админ-панель</span>
+      <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">ПДД ПМР</span>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <button onclick="exportData()" class="text-xs bg-emerald-600/80 hover:bg-emerald-500 px-3 py-1.5 rounded-lg font-semibold transition">⬇ Экспорт JSON</button>
+      <label class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg font-semibold cursor-pointer transition">
+        ⬆ Импорт<input type="file" accept=".json" class="hidden" onchange="importData(event)" />
+      </label>
+      <button onclick="resetOverrides()" class="text-xs bg-red-600/60 hover:bg-red-500 px-3 py-1.5 rounded-lg font-semibold transition">Сброс</button>
+      <button onclick="adminLogout()" class="text-xs border border-slate-600 px-3 py-1.5 rounded-lg transition">Выйти</button>
+      <button onclick="showScreen('home')" class="text-xs border border-slate-600 px-3 py-1.5 rounded-lg transition">На сайт</button>
+    </div>
+  </div>
+  <div class="max-w-4xl mx-auto px-4 py-6">
+    <p class="text-xs text-slate-500 mb-4 bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+      Изменения сохраняются в браузере. Чтобы обновить сайт для всех — нажмите <strong>Экспорт JSON</strong> и обновите файлы в <code class="text-indigo-300">data/</code> перед загрузкой на Cloudflare.
+    </p>
+    <div class="flex gap-2 mb-6 flex-wrap">
+      <button class="admin-tab active text-sm px-4 py-2 rounded-lg bg-slate-700 transition" data-tab="site" onclick="switchAdminTab('site')">Сайт</button>
+      <button class="admin-tab text-sm px-4 py-2 rounded-lg bg-slate-700 transition" data-tab="banners" onclick="switchAdminTab('banners')">Баннеры</button>
+      <button class="admin-tab text-sm px-4 py-2 rounded-lg bg-slate-700 transition" data-tab="questions" onclick="switchAdminTab('questions')">Вопросы</button>
+      <button class="admin-tab text-sm px-4 py-2 rounded-lg bg-slate-700 transition" data-tab="security" onclick="switchAdminTab('security')">Безопасность</button>
+    </div>
+    <div id="admin-panel-site" class="admin-panel space-y-4"></div>
+    <div id="admin-panel-banners" class="admin-panel hidden space-y-4"></div>
+    <div id="admin-panel-questions" class="admin-panel hidden space-y-4"></div>
+    <div id="admin-panel-security" class="admin-panel hidden space-y-4"></div>
+  </div>
+</section>
+
+
+<script src="js/app.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+pdd_russia-master/
+scripts/
+node_modules/
+.git/
+dist/
+*.md

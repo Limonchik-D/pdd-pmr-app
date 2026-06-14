@@ -1,0 +1,279 @@
+{
+  "title": "Правила дорожного движения ПМР",
+  "subtitle": "Постановление Правительства ПМР № 126 от 02.06.2017 (ред. 2026)",
+  "chapters": [
+    {
+      "id": "general-provisions",
+      "title": "Общие положения",
+      "section": "1",
+      "parent": null,
+      "file": "chapters/general-provisions.json"
+    },
+    {
+      "id": "driver-duties",
+      "title": "Общие обязанности водителей",
+      "section": "2",
+      "parent": null,
+      "file": "chapters/driver-duties.json"
+    },
+    {
+      "id": "special-signals",
+      "title": "Применение специальных сигналов",
+      "section": "3",
+      "parent": null,
+      "file": "chapters/special-signals.json"
+    },
+    {
+      "id": "pedestrian-duties",
+      "title": "Обязанности пешеходов",
+      "section": "4",
+      "parent": null,
+      "file": "chapters/pedestrian-duties.json"
+    },
+    {
+      "id": "passenger-duties",
+      "title": "Обязанности пассажиров",
+      "section": "5",
+      "parent": null,
+      "file": "chapters/passenger-duties.json"
+    },
+    {
+      "id": "traffic-signals",
+      "title": "Сигналы светофора и регулировщика",
+      "section": "6",
+      "parent": null,
+      "file": "chapters/traffic-signals.json"
+    },
+    {
+      "id": "emergency-signals",
+      "title": "Аварийная сигнализация и знак остановки",
+      "section": "7",
+      "parent": null,
+      "file": "chapters/emergency-signals.json"
+    },
+    {
+      "id": "maneuvering",
+      "title": "Начало движения, маневрирование",
+      "section": "8",
+      "parent": null,
+      "file": "chapters/maneuvering.json"
+    },
+    {
+      "id": "lane-position",
+      "title": "Расположение ТС на проезжей части",
+      "section": "9",
+      "parent": null,
+      "file": "chapters/lane-position.json"
+    },
+    {
+      "id": "speed",
+      "title": "Скорость движения",
+      "section": "10",
+      "parent": null,
+      "file": "chapters/speed.json"
+    },
+    {
+      "id": "overtaking",
+      "title": "Обгон, встречный разъезд",
+      "section": "11",
+      "parent": null,
+      "file": "chapters/overtaking.json"
+    },
+    {
+      "id": "parking",
+      "title": "Остановка и стоянка",
+      "section": "12",
+      "parent": null,
+      "file": "chapters/parking.json"
+    },
+    {
+      "id": "intersections",
+      "title": "Проезд перекрестков",
+      "section": "13",
+      "parent": null,
+      "file": "chapters/intersections.json"
+    },
+    {
+      "id": "crosswalks",
+      "title": "Пешеходные переходы",
+      "section": "14",
+      "parent": null,
+      "file": "chapters/crosswalks.json"
+    },
+    {
+      "id": "railway",
+      "title": "Железнодорожные переезды",
+      "section": "15",
+      "parent": null,
+      "file": "chapters/railway.json"
+    },
+    {
+      "id": "highways",
+      "title": "Автомагистрали",
+      "section": "16",
+      "parent": null,
+      "file": "chapters/highways.json"
+    },
+    {
+      "id": "residential",
+      "title": "Жилые и пешеходные зоны",
+      "section": "17",
+      "parent": null,
+      "file": "chapters/residential.json"
+    },
+    {
+      "id": "route-priority",
+      "title": "Приоритет маршрутных ТС",
+      "section": "18",
+      "parent": null,
+      "file": "chapters/route-priority.json"
+    },
+    {
+      "id": "lights-horn",
+      "title": "Световые приборы и звук",
+      "section": "19",
+      "parent": null,
+      "file": "chapters/lights-horn.json"
+    },
+    {
+      "id": "towing",
+      "title": "Буксировка",
+      "section": "20",
+      "parent": null,
+      "file": "chapters/towing.json"
+    },
+    {
+      "id": "training",
+      "title": "Учебная езда",
+      "section": "21",
+      "parent": null,
+      "file": "chapters/training.json"
+    },
+    {
+      "id": "cargo-people",
+      "title": "Перевозка людей",
+      "section": "22",
+      "parent": null,
+      "file": "chapters/cargo-people.json"
+    },
+    {
+      "id": "cargo-goods",
+      "title": "Перевозка грузов",
+      "section": "23",
+      "parent": null,
+      "file": "chapters/cargo-goods.json"
+    },
+    {
+      "id": "cyclists",
+      "title": "Велосипедисты и мопеды",
+      "section": "24",
+      "parent": null,
+      "file": "chapters/cyclists.json"
+    },
+    {
+      "id": "horse-vehicles",
+      "title": "Гужевой транспорт и животные",
+      "section": "25",
+      "parent": null,
+      "file": "chapters/horse-vehicles.json"
+    },
+    {
+      "id": "appendix1",
+      "title": "Приложение 1. Неисправности",
+      "section": "П1",
+      "parent": "appendix",
+      "file": "chapters/appendix1.json"
+    },
+    {
+      "id": "appendix2",
+      "title": "Приложение 2. Допуск ТС",
+      "section": "П2",
+      "parent": "appendix",
+      "file": "chapters/appendix2.json"
+    },
+    {
+      "id": "signs-intro",
+      "title": "Дорожные знаки",
+      "section": "З",
+      "parent": "signs",
+      "file": "chapters/signs-intro.json"
+    },
+    {
+      "id": "signs-warning",
+      "title": "Предупреждающие знаки",
+      "section": "1",
+      "parent": "signs",
+      "file": "chapters/signs-warning.json"
+    },
+    {
+      "id": "signs-priority",
+      "title": "Знаки приоритета",
+      "section": "2",
+      "parent": "signs",
+      "file": "chapters/signs-priority.json"
+    },
+    {
+      "id": "signs-prohibition",
+      "title": "Запрещающие знаки",
+      "section": "3",
+      "parent": "signs",
+      "file": "chapters/signs-prohibition.json"
+    },
+    {
+      "id": "signs-mandatory",
+      "title": "Предписывающие знаки",
+      "section": "4",
+      "parent": "signs",
+      "file": "chapters/signs-mandatory.json"
+    },
+    {
+      "id": "signs-special",
+      "title": "Знаки особых предписаний",
+      "section": "5",
+      "parent": "signs",
+      "file": "chapters/signs-special.json"
+    },
+    {
+      "id": "signs-info",
+      "title": "Информационные знаки",
+      "section": "6",
+      "parent": "signs",
+      "file": "chapters/signs-info.json"
+    },
+    {
+      "id": "signs-service",
+      "title": "Знаки сервиса",
+      "section": "7",
+      "parent": "signs",
+      "file": "chapters/signs-service.json"
+    },
+    {
+      "id": "signs-additional",
+      "title": "Знаки доп. информации",
+      "section": "8",
+      "parent": "signs",
+      "file": "chapters/signs-additional.json"
+    },
+    {
+      "id": "marking-intro",
+      "title": "Дорожная разметка",
+      "section": "Р",
+      "parent": "marking",
+      "file": "chapters/marking-intro.json"
+    },
+    {
+      "id": "marking-horizontal",
+      "title": "Горизонтальная разметка",
+      "section": "Г",
+      "parent": "marking",
+      "file": "chapters/marking-horizontal.json"
+    },
+    {
+      "id": "marking-vertical",
+      "title": "Вертикальная разметка",
+      "section": "В",
+      "parent": "marking",
+      "file": "chapters/marking-vertical.json"
+    }
+  ]
+}
