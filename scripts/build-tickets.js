@@ -11,26 +11,7 @@ const SIGNS_META = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'pdd_russia-master', 'pdd_russia-master', 'signs', 'signs.json'), 'utf8'
 ));
 const OUT = path.join(ROOT, 'data', 'tickets');
-
-function adaptPmr(text) {
-  if (!text) return 'Согласно ПДД ПМР (Постановление Правительства ПМР № 126 от 02.06.2017).';
-  let t = text
-    .replace(/КоАП РФ[^.]*\.(\s|$)/gi, '')
-    .replace(/Наказание за нарушение[^.]*\.(\s|$)/gi, '')
-    .replace(/штраф[^.]*руб\.?/gi, '')
-    .replace(/лишение права управления[^.]*\.?/gi, '')
-    .replace(/инспектор(ов|а)?\s+ГИБДД/gi, 'инспекторов ГАИ ПМР')
-    .replace(/ГИБДД/g, 'ГАИ ПМР')
-    .replace(/Почта России/g, 'почтовая служба')
-    .replace(/ПДД РФ/g, 'ПДД ПМР')
-    .replace(/\(«Дорожные знаки»\)/g, '(ПДД ПМР, дорожные знаки)')
-    .replace(/\(«Дорожные знаки»,/g, '(ПДД ПМР, дорожные знаки,')
-    .replace(/\(Пункт/g, '(ПДД ПМР, пункт')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-  if (!/ПДД ПМР/i.test(t)) t += ' (ПДД ПМР, Постановление № 126 от 02.06.2017).';
-  return t;
-}
+const { adaptPmr } = require('./adapt-pmr');
 
 function extractSignNumbers(text) {
   const nums = new Set();
