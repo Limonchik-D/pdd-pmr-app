@@ -71,7 +71,14 @@ tailwind.config = {
   .ticket-cell:hover { transform: scale(1.04); border-color: rgba(245,158,11,.6); }
   .ticket-cell.passed { background: rgba(16,185,129,.15); border-color: rgba(16,185,129,.5); color: #6ee7b7; }
   .ticket-cell.failed { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.35); }
+  #btn-next { justify-content: center; align-items: center; gap: 0.5rem; max-width: 20rem; margin-left: auto; margin-right: auto; }
+  .progress-history-scroll { scrollbar-width: thin; scrollbar-color: #475569 transparent; }
+  .progress-history-scroll::-webkit-scrollbar { width: 6px; }
+  .progress-history-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 999px; }
+  .theory-link.bg-indigo-600\/30 { border-left: 3px solid #6366f1; }
+  #theory-drawer { transition: transform .25s ease; }
 </style>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 </head>
 <body class="bg-pmr-bg text-slate-100 font-sans min-h-screen antialiased pt-14">
 
@@ -224,13 +231,13 @@ tailwind.config = {
     </div>
   </div>
   <div class="fixed bottom-0 inset-x-0 p-4 bg-gradient-to-t from-pmr-bg via-pmr-bg/95 to-transparent">
-    <div class="max-w-2xl mx-auto flex flex-col gap-2">
-      <button id="btn-finish-exam" onclick="finishExamEarly()" class="hidden w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-3 rounded-xl transition">
-        ✓ Завершить экзамен
+    <div class="max-w-2xl mx-auto flex flex-col gap-2 items-center">
+      <button id="btn-finish-exam" onclick="finishExamEarly()" class="hidden w-full max-w-sm bg-amber-600 hover:bg-amber-500 text-white font-semibold py-3 rounded-xl transition">
+        Завершить экзамен
       </button>
       <button id="btn-next" onclick="nextQuestion()" class="hidden w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-indigo-900/40">
-        Следующий вопрос →
-    </button>
+        Следующий вопрос
+      </button>
     </div>
   </div>
 </section>
@@ -308,8 +315,32 @@ tailwind.config = {
 
 <!-- ═══ SCREEN: THEORY ═══ -->
 <section id="screen-theory" class="screen pb-16">
+  <div id="theory-mobile-bar" class="md:hidden sticky top-14 z-40 bg-slate-900/95 border-b border-slate-700 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+    <button type="button" onclick="openTheoryDrawer()" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 border border-slate-600 hover:border-indigo-500/50 transition" aria-label="Открыть список тем">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+    <div class="min-w-0 flex-1">
+      <p class="text-[10px] uppercase tracking-widest text-slate-500">Теория ПДД</p>
+      <p id="theory-current-title" class="text-sm font-semibold truncate text-indigo-200">Выберите тему</p>
+    </div>
+  </div>
+  <div id="theory-drawer-overlay" class="hidden md:hidden fixed inset-0 z-[80] bg-black/60" onclick="closeTheoryDrawer()"></div>
+  <aside id="theory-drawer" class="md:hidden fixed top-14 left-0 z-[85] h-[calc(100vh-3.5rem)] w-[min(100vw-3rem,20rem)] bg-slate-900 border-r border-slate-700 shadow-2xl -translate-x-full flex flex-col">
+    <div class="p-4 border-b border-slate-700 flex items-center justify-between gap-2">
+      <p class="font-bold text-sm">Разделы теории</p>
+      <button type="button" onclick="closeTheoryDrawer()" class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-600 inline-flex items-center justify-center" aria-label="Закрыть">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <div class="p-3 border-b border-slate-800">
+      <input id="theory-search-mobile" type="search" placeholder="Поиск по теории…"
+        class="w-full bg-slate-950 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+        oninput="filterTheorySearch(this.value)" />
+    </div>
+    <nav id="theory-drawer-nav" class="flex-1 overflow-y-auto p-2 space-y-0.5"></nav>
+  </aside>
   <div class="max-w-6xl mx-auto flex flex-col md:flex-row min-h-[calc(100vh-3.5rem)]">
-    <aside id="theory-sidebar" class="md:w-72 shrink-0 bg-slate-800/40 border-b md:border-b-0 md:border-r border-slate-700 md:sticky md:top-14 md:self-start md:max-h-[calc(100vh-3.5rem)] md:overflow-y-auto">
+    <aside id="theory-sidebar" class="hidden md:block md:w-72 shrink-0 bg-slate-800/40 border-b md:border-b-0 md:border-r border-slate-700 md:sticky md:top-14 md:self-start md:max-h-[calc(100vh-3.5rem)] md:overflow-y-auto">
       <p class="p-4 text-slate-500 text-sm">Загрузка оглавления…</p>
     </aside>
     <main id="theory-content" class="flex-1 p-5 md:p-8 min-h-[50vh]">

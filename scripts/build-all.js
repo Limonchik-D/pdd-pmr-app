@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { groups, categories } = require('./categories-config');
 const { adaptPmr } = require('./adapt-pmr');
+const { extractSignNumbers } = require('./extract-sign-numbers');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'pdd_russia-master', 'pdd_russia-master');
@@ -30,16 +31,6 @@ function loadTopic(file) {
 
 const allSignQuestions = JSON.parse(fs.readFileSync(SIGNS_Q, 'utf8'));
 
-function extractSignNumbers(text) {
-  const nums = new Set();
-  const re = /(?:знак[аи]?|таб\.?|табличк[аи]?)\s*([1-8]\.\d+(?:\.\d+)?)/gi;
-  let m;
-  while ((m = re.exec(text))) nums.add(m[1]);
-  const re2 = /\b([1-8]\.\d+(?:\.\d+)?)\b/g;
-  while ((m = re2.exec(text))) nums.add(m[1]);
-  return [...nums];
-}
-
 function imagePath(raw) {
   if (!raw || raw.includes('no_image')) return '';
   const name = path.basename(raw);
@@ -60,11 +51,11 @@ function signSvg(signNum) {
 
 function convertQuestion(q, signHint, idx) {
   const tip = q.answer_tip || '';
-  const sign = signHint || extractSignNumbers(tip + ' ' + q.question)[0] || '';
+  const sign = signHint || extractSignNumbers(q.question)[0] || '';
   const answers = q.answers.map(a => a.answer_text);
   const correct = q.answers.findIndex(a => a.is_correct);
   let image = imagePath(q.image);
-  if (!image && sign) image = signSvg(sign);
+  if (!image && sign && extractSignNumbers(q.question).includes(sign)) image = signSvg(sign);
   return {
     id: idx + 1,
     sign,

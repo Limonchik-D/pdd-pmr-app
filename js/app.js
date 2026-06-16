@@ -27,7 +27,26 @@ const state = {
 };
 let pendingCategoryId = null;
 
-/* ─── DATA ─── */
+function shouldShowQuestionImage(q) {
+  if (!q?.image) return false;
+  if (q.image.includes('images/A_B/')) return true;
+  if (!q.image.includes('images/signs/')) return true;
+  return /(?:знак|табличк|таб\.|разметк|данн(?:ый|ого|ые|ых)\s+знак|эти\s+знак|как(?:ой|ие)\s+знак)/i.test(q.text || '');
+}
+
+function iconHtml(name, cls = 'w-5 h-5') {
+  return `<i data-lucide="${name}" class="${cls} shrink-0"></i>`;
+}
+
+function refreshIcons(root) {
+  if (typeof lucide !== 'undefined') lucide.createIcons({ attrs: { 'stroke-width': 2 }, nameAttr: 'data-lucide', root: root || document });
+}
+
+function setNextButton(label, icon = 'arrow-right') {
+  const btn = document.getElementById('btn-next');
+  btn.innerHTML = `<span>${esc(label)}</span>${iconHtml(icon)}`;
+  refreshIcons(btn);
+}
 async function loadData() {
   const [cfgRes, manRes, tocRes, signsRes, ticketsRes] = await Promise.all([
     fetch('data/config.json'),
@@ -537,9 +556,12 @@ function renderQuestion(idx) {
   document.getElementById('question-text').textContent = q.text;
 
   const imgWrap = document.getElementById('question-img-wrap');
-  imgWrap.innerHTML = q.image
-    ? `<img src="${esc(q.image)}" alt="" class="sign-img max-h-52 mx-auto rounded-lg" />`
-    : `<div class="text-slate-500 text-sm py-8 text-center">Текстовый вопрос</div>`;
+  if (shouldShowQuestionImage(q)) {
+    imgWrap.innerHTML = `<img src="${esc(q.image)}" alt="" class="sign-img max-h-52 mx-auto rounded-lg" />`;
+  } else {
+    imgWrap.innerHTML = `<div class="text-slate-500 text-sm py-8 text-center flex flex-col items-center gap-2">${iconHtml('file-text', 'w-8 h-8 opacity-40')}<span>Текстовый вопрос</span></div>`;
+    refreshIcons(imgWrap);
+  }
 
   const letters = ['А', 'Б', 'В', 'Г'];
   document.getElementById('answers-wrap').innerHTML = q.answers.map((a, i) => {
@@ -560,9 +582,16 @@ function renderQuestion(idx) {
   const showNext = isExam ? answered !== null : answered !== null;
   btn.classList.toggle('hidden', !showNext);
   btn.classList.toggle('flex', showNext);
-  btn.textContent = idx >= total - 1
-    ? (isSilent ? 'К разбору →' : isMarathon ? '✓ Завершить марафон' : '✓ Завершить тест')
-    : 'Следующий вопрос →';
+  if (showNext) {
+    if (idx >= total - 1) {
+      setNextButton(
+        isSilent ? 'К разбору' : isMarathon ? 'Завершить марафон' : 'Завершить тест',
+        isSilent ? 'clipboard-check' : 'check-circle-2'
+      );
+    } else {
+      setNextButton('Следующий вопрос', 'arrow-right');
+    }
+  }
 
   if (isSilent) renderExamNav();
 }
@@ -721,22 +750,12 @@ function exitTest() {
 
 /* ─── THEORY ─── */
 let theorySearchIndex = null;
+let theoryCurrentChapterId = null;
 
-function renderTheorySidebar() {
-  const sb = document.getElementById('theory-sidebar');
-  if (!theoryToc) {
-    sb.innerHTML = '<p class="p-4 text-slate-500 text-sm">Загрузка оглавления…</p>';
-    return;
-  }
+function buildTheoryNavHtml(onChapterClick) {
+  const click = onChapterClick || "loadTheoryChapter";
   const parents = { signs: 'Дорожные знаки', marking: 'Дорожная разметка', appendix: 'Приложения' };
-  let html = `<div class="p-4 border-b border-slate-700">
-    <h2 class="font-bold text-sm">${esc(theoryToc.title)}</h2>
-    <p class="text-xs text-slate-500 mt-1">${esc(theoryToc.subtitle)}</p>
-    <input id="theory-search" type="search" placeholder="Поиск по теории…"
-      class="mt-3 w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
-      oninput="filterTheorySearch(this.value)" />
-    <p id="theory-search-hint" class="hidden text-xs text-indigo-400 mt-2"></p>
-  </div><nav id="theory-nav" class="p-2 space-y-0.5">`;
+  let html = '';
   let lastParent = null;
   for (const ch of theoryToc.chapters) {
     if (ch.parent && ch.parent !== lastParent) {
@@ -744,11 +763,45 @@ function renderTheorySidebar() {
       lastParent = ch.parent;
     } else if (!ch.parent) lastParent = null;
     const pad = ch.parent ? 'pl-5' : '';
-    html += `<button class="theory-link w-full text-left text-sm px-3 py-2 rounded-lg hover:bg-slate-700/80 transition ${pad}"
-      data-id="${ch.id}" onclick="loadTheoryChapter('${ch.id}')">${esc(ch.title)}</button>`;
+    html += `<button class="theory-link w-full text-left text-sm px-3 py-2.5 rounded-lg hover:bg-slate-700/80 transition ${pad}"
+      data-id="${ch.id}" onclick="${click}('${ch.id}')">${esc(ch.title)}</button>`;
   }
-  html += '</nav>';
-  sb.innerHTML = html;
+  return html;
+}
+
+function renderTheorySidebar() {
+  const sb = document.getElementById('theory-sidebar');
+  const drawerNav = document.getElementById('theory-drawer-nav');
+  if (!theoryToc) {
+    const loading = '<p class="p-4 text-slate-500 text-sm">Загрузка оглавления…</p>';
+    if (sb) sb.innerHTML = loading;
+    if (drawerNav) drawerNav.innerHTML = loading;
+    return;
+  }
+  const header = `<div class="p-4 border-b border-slate-700">
+    <h2 class="font-bold text-sm">${esc(theoryToc.title)}</h2>
+    <p class="text-xs text-slate-500 mt-1">${esc(theoryToc.subtitle)}</p>
+    <input id="theory-search" type="search" placeholder="Поиск по теории…"
+      class="mt-3 w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+      oninput="filterTheorySearch(this.value)" />
+    <p id="theory-search-hint" class="hidden text-xs text-indigo-400 mt-2"></p>
+  </div>`;
+  const nav = buildTheoryNavHtml('loadTheoryChapter');
+  if (sb) sb.innerHTML = header + `<nav id="theory-nav" class="p-2 space-y-0.5 pb-4">${nav}</nav>`;
+  if (drawerNav) drawerNav.innerHTML = nav;
+  refreshIcons(document.getElementById('screen-theory'));
+}
+
+function openTheoryDrawer() {
+  document.getElementById('theory-drawer')?.classList.remove('-translate-x-full');
+  document.getElementById('theory-drawer-overlay')?.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeTheoryDrawer() {
+  document.getElementById('theory-drawer')?.classList.add('-translate-x-full');
+  document.getElementById('theory-drawer-overlay')?.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
 }
 
 async function loadTheorySearchIndex() {
@@ -761,6 +814,10 @@ async function loadTheorySearchIndex() {
 
 function filterTheorySearch(query) {
   const q = query.trim().toLowerCase();
+  const desktopSearch = document.getElementById('theory-search');
+  const mobileSearch = document.getElementById('theory-search-mobile');
+  if (desktopSearch && document.activeElement !== desktopSearch) desktopSearch.value = query;
+  if (mobileSearch && document.activeElement !== mobileSearch) mobileSearch.value = query;
   const links = document.querySelectorAll('.theory-link');
   const parents = document.querySelectorAll('.theory-parent');
   const hint = document.getElementById('theory-search-hint');
@@ -816,18 +873,21 @@ function isJunkTheoryText(t) {
   if (!t) return true;
   if (/РЕШАТЬ БИЛЕТЫ|ЭКЗАМЕН ПДД|Понравился сайт|Поделиться с друзьями|Оплата.*Премиум/i.test(t)) return true;
   if (/^Правила Дорожного Движения ПМР\.?$/i.test(t.trim())) return true;
+  if (/^ПДД ПМР оглавление:?$/i.test(t.trim())) return true;
   return false;
 }
 
 function extractSignNumbers(text) {
+  if (!text) return [];
   const nums = new Set();
-  const re = /(?:знак(?:а|ами|ом)?|таб\.?|табличк(?:а|и)?)\s*([1-8]\.\d+(?:\.\d+)?(?:\s*,\s*[1-8]\.\d+(?:\.\d+)?)*)/gi;
+  const re = /(?:знак(?:а|ами|ом|ов|е)?|таб\.?|табличк(?:а|и|ой|ами)?)\s*([1-8]\.\d+(?:\.\d+)?(?:\s*[,–—-]\s*[1-8]\.\d+(?:\.\d+)?)*)/gi;
   let m;
   while ((m = re.exec(text))) {
-    m[1].split(/\s*,\s*/).forEach(n => nums.add(n.trim()));
+    m[1].split(/\s*[,–—-]\s*/).forEach(n => {
+      const t = n.trim();
+      if (t) nums.add(t);
+    });
   }
-  const re2 = /\b([1-8]\.\d+(?:\.\d+)?)\b/g;
-  while ((m = re2.exec(text))) nums.add(m[1]);
   return [...nums];
 }
 
@@ -850,9 +910,12 @@ function formatInlineTheory(text) {
 
 function preprocessTheoryBlocks(blocks) {
   const out = [];
+  let skipRest = false;
   for (const b of blocks) {
     const t = decodeHtml(b.text || '').trim();
     if (isJunkTheoryText(t)) continue;
+    if (/^ПДД ПМР оглавление:?$/i.test(t)) { skipRest = true; continue; }
+    if (skipRest) continue;
     if (b.type === 'paragraph' && /^([1-8]\.\d+(?:\.\d+)?(?:\s+[1-8]\.\d+(?:\.\d+)?)*)$/.test(t)) {
       if (out.length) {
         const prev = out[out.length - 1];
@@ -904,7 +967,12 @@ function renderTheoryBlock(b) {
 }
 
 async function loadTheoryChapter(id) {
+  theoryCurrentChapterId = id;
   document.querySelectorAll('.theory-link').forEach(b => b.classList.toggle('bg-indigo-600/30', b.dataset.id === id));
+  const chMeta = theoryToc?.chapters?.find(c => c.id === id);
+  const titleEl = document.getElementById('theory-current-title');
+  if (titleEl) titleEl.textContent = chMeta?.title || 'Теория ПДД';
+  closeTheoryDrawer();
   const main = document.getElementById('theory-content');
   main.innerHTML = '<p class="text-slate-400">Загрузка…</p>';
   try {
@@ -912,10 +980,16 @@ async function loadTheoryChapter(id) {
     const blocks = preprocessTheoryBlocks(ch.blocks || []).map(renderTheoryBlock).filter(Boolean).join('');
     main.innerHTML = `
       <article class="max-w-3xl">
-        <h1 class="text-2xl font-bold mb-6 pb-4 border-b border-slate-700">${esc(ch.title)}</h1>
+        <div class="flex items-start justify-between gap-3 mb-6 pb-4 border-b border-slate-700">
+          <h1 class="text-2xl font-bold">${esc(ch.title)}</h1>
+          <button type="button" onclick="openTheoryDrawer()" class="md:hidden shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-300 border border-indigo-500/40 bg-indigo-500/10 px-3 py-2 rounded-lg">
+            ${iconHtml('list', 'w-4 h-4')}<span>Темы</span>
+          </button>
+        </div>
         ${blocks}
         <p class="text-xs text-slate-600 mt-8 pt-4 border-t border-slate-800">Источник: <a href="${esc(ch.source)}" target="_blank" rel="noopener" class="text-indigo-400 hover:underline">pdd-expert.com</a> · ПДД ПМР № 126</p>
       </article>`;
+    refreshIcons(main);
   } catch {
     main.innerHTML = '<p class="text-red-400">Не удалось загрузить раздел</p>';
   }
@@ -980,7 +1054,7 @@ function renderProgressDashboard() {
       }).join('')
     : '<p class="text-slate-500 text-sm py-4">Пока нет пройденных тем — начните с раздела «Тесты».</p>';
 
-  const history = (progress.history || []).slice(0, 15);
+  const history = (progress.history || []).slice(0, 25);
   const historyRows = history.length
     ? history.map(h => {
         const d = new Date(h.date);
@@ -991,7 +1065,7 @@ function renderProgressDashboard() {
           <span class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300 shrink-0">${modeLabel}</span>
           <span class="flex-1 truncate text-slate-300">${esc(h.title)}</span>
           <span class="shrink-0 text-slate-400">${h.correct}/${h.total}</span>
-          <span class="shrink-0 font-semibold ${h.passed ? 'text-emerald-400' : 'text-red-400'}">${h.passed ? '✓' : '✗'}</span>
+          <span class="shrink-0">${h.passed ? iconHtml('check-circle-2', 'w-4 h-4 text-emerald-400') : iconHtml('x-circle', 'w-4 h-4 text-red-400')}</span>
         </div>`;
       }).join('')
     : '<p class="text-slate-500 text-sm py-4">История попыток появится после первого теста.</p>';
@@ -1002,9 +1076,13 @@ function renderProgressDashboard() {
       ${topicRows}
     </div>
     <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
-      <h3 class="font-bold text-sm mb-3">Последние попытки</h3>
-      ${historyRows}
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <h3 class="font-bold text-sm">Последние попытки</h3>
+        <span class="text-xs text-slate-500">${history.length} из ${Math.min((progress.history || []).length, 40)}</span>
+      </div>
+      <div class="progress-history-scroll max-h-72 overflow-y-auto pr-1 -mr-1">${historyRows}</div>
     </div>`;
+  refreshIcons(el);
 }
 
 function pluralErrors(n) {
@@ -1033,6 +1111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     await loadData();
     renderHome();
+    refreshIcons();
   } catch (e) {
     document.getElementById('group-grid').innerHTML =
       '<p class="text-red-400 col-span-full">Ошибка загрузки. Запустите локальный сервер (python -m http.server).</p>';

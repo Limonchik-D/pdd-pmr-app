@@ -12,16 +12,7 @@ const SIGNS_META = JSON.parse(fs.readFileSync(
 ));
 const OUT = path.join(ROOT, 'data', 'tickets');
 const { adaptPmr } = require('./adapt-pmr');
-
-function extractSignNumbers(text) {
-  const nums = new Set();
-  const re = /(?:знак[аи]?|таб\.?|табличк[аи]?)\s*([1-8]\.\d+(?:\.\d+)?)/gi;
-  let m;
-  while ((m = re.exec(text))) nums.add(m[1]);
-  const re2 = /\b([1-8]\.\d+(?:\.\d+)?)\b/g;
-  while ((m = re2.exec(text))) nums.add(m[1]);
-  return [...nums];
-}
+const { extractSignNumbers } = require('./extract-sign-numbers');
 
 function imagePath(raw) {
   if (!raw || raw.includes('no_image')) return '';
@@ -41,7 +32,7 @@ function signSvg(signNum) {
 
 function convertQuestion(q, idx) {
   const tip = q.answer_tip || '';
-  const sign = extractSignNumbers(tip + ' ' + q.question)[0] || '';
+  const sign = extractSignNumbers(q.question)[0] || '';
   const answers = q.answers.map(a => a.answer_text);
   const correct = q.answers.findIndex(a => a.is_correct);
   let image = imagePath(q.image);
