@@ -38,6 +38,36 @@ function iconHtml(name, cls = 'w-5 h-5') {
   return `<i data-lucide="${name}" class="${cls} shrink-0"></i>`;
 }
 
+const MATERIAL_SYMBOLS = {
+  rules: 'article',
+  maneuvers: 'sync_alt',
+  crossings: 'traffic',
+  signs: 'signpost',
+  marking: 'linear_scale',
+  other: 'health_and_safety',
+  exam: 'school',
+  marathon: 'directions_run',
+  'general-provisions': 'fact_check',
+  'driver-duties': 'person_check',
+  'special-signals': 'emergency_share',
+  'traffic-signals': 'traffic',
+  'traffic-light': 'traffic',
+  regulator: 'sign_language',
+};
+
+function materialSymbolHtml(name, cls = 'text-3xl') {
+  return `<span class="material-symbols-rounded app-symbol ${cls}" aria-hidden="true">${name}</span>`;
+}
+
+function groupSymbolHtml(group, cls = 'text-3xl') {
+  return materialSymbolHtml(MATERIAL_SYMBOLS[group?.id] || 'folder', cls);
+}
+
+function categorySymbolHtml(category, cls = 'text-2xl') {
+  const key = category?.baseId || category?.id || category?.group;
+  return materialSymbolHtml(MATERIAL_SYMBOLS[key] || MATERIAL_SYMBOLS[category?.group] || 'quiz', cls);
+}
+
 function refreshIcons(root) {
   if (typeof lucide !== 'undefined') lucide.createIcons({ attrs: { 'stroke-width': 2 }, nameAttr: 'data-lucide', root: root || document });
 }
@@ -238,7 +268,7 @@ function renderQuickTests() {
     <div class="bg-gradient-to-br from-amber-950/50 to-slate-800 border border-amber-600/40 rounded-2xl p-5 cursor-pointer hover:border-amber-500/60 transition"
       onclick="openExamScreen()">
       <div class="flex items-start gap-3">
-        <span class="text-3xl">🎓</span>
+        ${materialSymbolHtml(MATERIAL_SYMBOLS.exam, 'text-3xl text-amber-300')}
         <div class="flex-1">
           <h3 class="font-bold text-amber-300">${esc(ex.title || 'Экзамен')}</h3>
           <p class="text-slate-400 text-xs mt-1 line-clamp-2">${esc(ex.desc || '')}</p>
@@ -249,7 +279,7 @@ function renderQuickTests() {
     <div class="bg-gradient-to-br from-violet-950/50 to-slate-800 border border-violet-600/40 rounded-2xl p-5 cursor-pointer hover:border-violet-500/60 transition"
       onclick="openMarathonConfirm()">
       <div class="flex items-start gap-3">
-        <span class="text-3xl">🏃</span>
+        ${materialSymbolHtml(MATERIAL_SYMBOLS.marathon, 'text-3xl text-violet-300')}
         <div class="flex-1">
           <h3 class="font-bold text-violet-300">${esc(mn.title || 'Марафон')}</h3>
           <p class="text-slate-400 text-xs mt-1 line-clamp-2">${esc(mn.desc || '')}</p>
@@ -279,7 +309,7 @@ function renderHome() {
     return `
       <div class="group-card bg-slate-800 border border-slate-700 rounded-xl p-5 cursor-pointer"
         onclick="openGroup('${g.id}')">
-        <div class="text-3xl mb-3">${g.icon || '📁'}</div>
+        <div class="mb-3">${groupSymbolHtml(g, 'text-3xl')}</div>
         <h3 class="font-bold text-sm mb-1">${esc(g.title)}</h3>
         <p class="text-slate-400 text-xs leading-relaxed line-clamp-2 mb-4">${esc(g.desc || '')}</p>
         <div class="flex justify-between text-xs text-slate-500 pt-3 border-t border-slate-700/60">
@@ -304,7 +334,7 @@ function renderGroupScreen() {
   const tests = manifest.categories.filter(c => c.group === g.id && c.questionCount > 0);
   document.getElementById('group-header').innerHTML = `
     <div class="flex items-start gap-4">
-      <span class="text-4xl">${g.icon || '📁'}</span>
+      ${groupSymbolHtml(g, 'text-4xl')}
       <div>
         <h2 class="text-2xl font-bold">${esc(g.title)}</h2>
         <p class="text-slate-400 text-sm mt-1">${esc(g.desc || '')}</p>
@@ -317,7 +347,7 @@ function renderGroupScreen() {
     return `
       <div class="bg-slate-800/80 border border-slate-700 hover:border-indigo-500/50 rounded-xl p-4 cursor-pointer transition flex gap-3 items-center"
         onclick="openTestConfirm('${cat.id}')">
-        <span class="text-2xl shrink-0">${cat.icon}</span>
+        ${categorySymbolHtml(cat, 'text-2xl shrink-0')}
         <div class="flex-1 min-w-0">
           <h4 class="font-semibold text-sm truncate">${esc(cat.title)}</h4>
           <p class="text-xs text-slate-500 truncate">${esc(cat.desc)}</p>
@@ -344,7 +374,7 @@ function renderExamScreen() {
   const total = ex.ticketCount || 40;
   document.getElementById('exam-header').innerHTML = `
     <div class="flex items-start gap-4">
-      <span class="text-4xl">🎓</span>
+      ${materialSymbolHtml(MATERIAL_SYMBOLS.exam, 'text-4xl text-amber-300')}
       <div>
         <h2 class="text-2xl font-bold">${esc(ex.title || 'Экзамен ПДД ПМР')}</h2>
         <p class="text-slate-400 text-sm mt-1">${esc(ex.desc || '')}</p>
@@ -365,7 +395,7 @@ function renderExamScreen() {
 function openExamTicketConfirm(ticketNo) {
   pendingExamTicketNo = ticketNo;
   const ex = config.exam || {};
-  document.getElementById('exam-confirm-title').textContent = `🎓 Билет № ${ticketNo}`;
+  document.getElementById('exam-confirm-title').innerHTML = `${materialSymbolHtml(MATERIAL_SYMBOLS.exam, 'text-2xl text-amber-300')} Билет № ${ticketNo}`;
   document.getElementById('exam-confirm-desc').textContent = ex.desc || '';
   document.getElementById('exam-confirm-time').textContent = ex.timeMinutes || 20;
   document.getElementById('exam-confirm-count').textContent = ex.questionCount || 20;
@@ -877,6 +907,33 @@ function isJunkTheoryText(t) {
   return false;
 }
 
+function normalizeTheoryTitle(t) {
+  return decodeHtml(t || '')
+    .toLowerCase()
+    .replace(/�/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/[.。]+$/g, '')
+    .trim();
+}
+
+function getTheoryTocTitleSet() {
+  const titles = new Set(['дорожные знаки', 'дорожная разметка', 'приложения']);
+  (theoryToc?.chapters || []).forEach(ch => titles.add(normalizeTheoryTitle(ch.title)));
+  return titles;
+}
+
+function looksLikeTheoryTocTail(blocks, index) {
+  const first = normalizeTheoryTitle(blocks[index]?.text);
+  if (first !== 'общие положения') return false;
+  const tocTitles = getTheoryTocTitleSet();
+  let matches = 0;
+  for (let i = index; i < Math.min(blocks.length, index + 10); i++) {
+    const text = normalizeTheoryTitle(blocks[i]?.text);
+    if (tocTitles.has(text)) matches++;
+  }
+  return matches >= 4;
+}
+
 function extractSignNumbers(text) {
   if (!text) return [];
   const nums = new Set();
@@ -911,10 +968,12 @@ function formatInlineTheory(text) {
 function preprocessTheoryBlocks(blocks) {
   const out = [];
   let skipRest = false;
-  for (const b of blocks) {
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
     const t = decodeHtml(b.text || '').trim();
     if (isJunkTheoryText(t)) continue;
     if (/^ПДД ПМР оглавление:?$/i.test(t)) { skipRest = true; continue; }
+    if (looksLikeTheoryTocTail(blocks, i)) break;
     if (skipRest) continue;
     if (b.type === 'paragraph' && /^([1-8]\.\d+(?:\.\d+)?(?:\s+[1-8]\.\d+(?:\.\d+)?)*)$/.test(t)) {
       if (out.length) {
@@ -1042,7 +1101,7 @@ function renderProgressDashboard() {
         const p = progress[c.id];
         const ok = p.bestPct >= 70;
         return `<div class="flex items-center gap-3 py-2 border-b border-slate-800 last:border-0">
-          <span class="text-lg shrink-0">${c.icon}</span>
+          ${categorySymbolHtml(c, 'text-lg shrink-0')}
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium truncate">${esc(c.title)}</p>
             <div class="h-1.5 bg-slate-700 rounded-full mt-1 overflow-hidden">
