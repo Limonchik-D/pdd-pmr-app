@@ -21,8 +21,7 @@ tailwind.config = {
 };
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/fonts/material-symbols-rounded.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet" />
 <style>
   .screen { display: none; }
   .screen.active { display: block; }
@@ -78,8 +77,8 @@ tailwind.config = {
   .progress-history-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 999px; }
   .theory-link.bg-indigo-600\/30 { border-left: 3px solid #6366f1; }
   #theory-drawer { transition: transform .25s ease; }
-  .material-symbols-rounded { vertical-align: -0.2em; }
-  .app-symbol { display: inline-flex; align-items: center; justify-content: center; color: #c7d2fe; }
+  .app-emoji { font-family: "Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji", sans-serif; line-height: 1; display: inline-block; }
+  #global-search-results { max-height: min(60vh, 28rem); overflow-y: auto; }
 </style>
 <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 </head>
@@ -89,6 +88,7 @@ tailwind.config = {
 <nav class="fixed top-0 inset-x-0 z-50 bg-slate-900/95 border-b border-slate-700 backdrop-blur-sm">
   <div class="max-w-6xl mx-auto px-4 flex items-center gap-2 h-14">
     <button onclick="showScreen('home')" class="font-bold text-sm mr-auto hover:text-indigo-300 transition">🚗 ПДД ПМР</button>
+    <button class="nav-btn" onclick="openGlobalSearch()" title="Поиск">🔍</button>
     <button class="nav-btn nav-active" data-screen="home" onclick="showScreen('home')">Тесты</button>
     <button class="nav-btn" data-screen="progress" onclick="openProgress()">Прогресс</button>
     <button class="nav-btn" data-screen="theory" onclick="openTheory()">Теория ПДД</button>
@@ -98,13 +98,13 @@ tailwind.config = {
 <!-- ═══ EXAM TICKET CONFIRM MODAL ═══ -->
 <div id="exam-confirm-modal" class="hidden fixed inset-0 z-[90] bg-black/75 flex items-center justify-center p-4">
   <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-    <h3 id="exam-confirm-title" class="text-xl font-bold mb-2 text-center"><span class="material-symbols-rounded app-symbol text-2xl text-amber-300">school</span> Билет № 1</h3>
+    <h3 id="exam-confirm-title" class="text-xl font-bold mb-2 text-center">🎓 Билет № 1</h3>
     <p id="exam-confirm-desc" class="text-slate-400 text-sm mb-4 text-center"></p>
     <ul class="text-sm text-slate-300 space-y-2 mb-6 bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-      <li><span class="material-symbols-rounded app-symbol text-base">timer</span> <strong id="exam-confirm-time">20</strong> минут на билет</li>
-      <li><span class="material-symbols-rounded app-symbol text-base">edit_note</span> <strong id="exam-confirm-count">20</strong> вопросов</li>
-      <li><span class="material-symbols-rounded app-symbol text-base text-emerald-300">check_circle</span> Допускается не более <strong id="exam-confirm-errors">2</strong> ошибок</li>
-      <li><span class="material-symbols-rounded app-symbol text-base">visibility_off</span> Правильные ответы — только после завершения</li>
+      <li>⏱ <strong id="exam-confirm-time">20</strong> минут на билет</li>
+      <li>📝 <strong id="exam-confirm-count">20</strong> вопросов</li>
+      <li>✅ Допускается не более <strong id="exam-confirm-errors">2</strong> ошибок</li>
+      <li>🔇 Правильные ответы — только после завершения</li>
     </ul>
     <div class="flex flex-col sm:flex-row gap-3">
       <button onclick="confirmStartExamTicket()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-semibold py-3 px-6 rounded-xl transition">Начать билет</button>
@@ -116,12 +116,12 @@ tailwind.config = {
 <!-- ═══ MARATHON CONFIRM MODAL ═══ -->
 <div id="marathon-confirm-modal" class="hidden fixed inset-0 z-[90] bg-black/75 flex items-center justify-center p-4">
   <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-    <h3 class="text-xl font-bold mb-2 text-center"><span class="material-symbols-rounded app-symbol text-2xl text-violet-300">directions_run</span> Марафон</h3>
+    <h3 class="text-xl font-bold mb-2 text-center">🏃 Марафон</h3>
     <p id="marathon-confirm-desc" class="text-slate-400 text-sm mb-4 text-center"></p>
     <ul class="text-sm text-slate-300 space-y-2 mb-6 bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-      <li><span class="material-symbols-rounded app-symbol text-base">edit_note</span> <strong id="marathon-confirm-count">—</strong> вопросов подряд</li>
-      <li><span class="material-symbols-rounded app-symbol text-base">tips_and_updates</span> Подсказки сразу после ответа</li>
-      <li><span class="material-symbols-rounded app-symbol text-base">pause_circle</span> Можно выйти и продолжить позже</li>
+      <li>📝 <strong id="marathon-confirm-count">—</strong> вопросов подряд</li>
+      <li>💡 Подсказки сразу после ответа</li>
+      <li>⏸ Можно выйти и продолжить позже</li>
     </ul>
     <div class="flex flex-col sm:flex-row gap-3">
       <button onclick="confirmStartMarathon()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white font-semibold py-3 px-6 rounded-xl transition">Начать марафон</button>
@@ -144,6 +144,20 @@ tailwind.config = {
         Выйти
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ═══ GLOBAL SEARCH MODAL ═══ -->
+<div id="global-search-modal" class="hidden fixed inset-0 z-[95] bg-black/75 flex items-start justify-center p-4 pt-20">
+  <div class="bg-slate-800 border border-slate-600 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden">
+    <div class="p-4 border-b border-slate-700 flex gap-2 items-center">
+      <span class="text-lg">🔍</span>
+      <input id="global-search-input" type="search" placeholder="Пункт 6.4, обгон, светофор…"
+        class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
+        oninput="runGlobalSearch(this.value)" />
+      <button onclick="closeGlobalSearch()" class="text-slate-400 hover:text-white px-2">✕</button>
+    </div>
+    <div id="global-search-results" class="p-2 text-sm text-slate-400">Введите запрос — пункт ПДД, тему или ключевое слово</div>
   </div>
 </div>
 

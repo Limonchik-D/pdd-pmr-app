@@ -1,6 +1,7 @@
 /* ═══ ПДД ПМР — основное приложение ═══ */
 const LS_KEY = 'pdd_pmr_data_v2';
-const LS_PROGRESS = 'pdd_pmr_progress_v1';
+const LS_PROGRESS = 'pdd_pmr_progress_v2';
+const PROGRESS_SCHEMA = 2;
 const LS_LOCK = 'pdd_pmr_lock_v1';
 const LS_ATTEMPTS = 'pdd_pmr_attempts_v1';
 const SESSION_KEY = 'pdd_pmr_admin_session';
@@ -38,34 +39,16 @@ function iconHtml(name, cls = 'w-5 h-5') {
   return `<i data-lucide="${name}" class="${cls} shrink-0"></i>`;
 }
 
-const MATERIAL_SYMBOLS = {
-  rules: 'article',
-  maneuvers: 'sync_alt',
-  crossings: 'traffic',
-  signs: 'signpost',
-  marking: 'linear_scale',
-  other: 'health_and_safety',
-  exam: 'school',
-  marathon: 'directions_run',
-  'general-provisions': 'fact_check',
-  'driver-duties': 'person_check',
-  'special-signals': 'emergency_share',
-  'traffic-signals': 'traffic',
-  'traffic-light': 'traffic',
-  regulator: 'sign_language',
-};
-
-function materialSymbolHtml(name, cls = 'text-3xl') {
-  return `<span class="material-symbols-rounded app-symbol ${cls}" aria-hidden="true">${name}</span>`;
+function emojiHtml(emoji, cls = 'text-3xl') {
+  return `<span class="app-emoji ${cls}" aria-hidden="true">${emoji || '📁'}</span>`;
 }
 
 function groupSymbolHtml(group, cls = 'text-3xl') {
-  return materialSymbolHtml(MATERIAL_SYMBOLS[group?.id] || 'folder', cls);
+  return emojiHtml(group?.icon, cls);
 }
 
 function categorySymbolHtml(category, cls = 'text-2xl') {
-  const key = category?.baseId || category?.id || category?.group;
-  return materialSymbolHtml(MATERIAL_SYMBOLS[key] || MATERIAL_SYMBOLS[category?.group] || 'quiz', cls);
+  return emojiHtml(category?.icon, cls);
 }
 
 function refreshIcons(root) {
@@ -78,18 +61,20 @@ function setNextButton(label, icon = 'arrow-right') {
   refreshIcons(btn);
 }
 async function loadData() {
-  const [cfgRes, manRes, tocRes, signsRes, ticketsRes] = await Promise.all([
+  const [cfgRes, manRes, tocRes, signsRes, ticketsRes, searchRes] = await Promise.all([
     fetch('data/config.json'),
     fetch('data/manifest.json'),
     fetch('data/theory/toc.json').catch(() => null),
     fetch('data/signs-map.json').catch(() => null),
     fetch('data/tickets/manifest.json').catch(() => null),
+    fetch('data/global-search.json').catch(() => null),
   ]);
   config = await cfgRes.json();
   manifest = await manRes.json();
   if (tocRes?.ok) theoryToc = await tocRes.json();
   if (signsRes?.ok) signsMap = await signsRes.json();
   if (ticketsRes?.ok) ticketsManifest = await ticketsRes.json();
+  if (searchRes?.ok) globalSearchIndex = await searchRes.json();
 
   const saved = localStorage.getItem(LS_KEY);
   if (saved) {
@@ -102,14 +87,25 @@ async function loadData() {
   loadProgress();
 }
 
+let globalSearchIndex = null;
+
 function loadProgress() {
   try {
-    progress = JSON.parse(localStorage.getItem(LS_PROGRESS) || '{}');
-  } catch { progress = {}; }
+    const raw = localStorage.getItem(LS_PROGRESS) || localStorage.getItem('pdd_pmr_progress_v1') || '{}';
+    progress = JSON.parse(raw);
+    if (!progress.schema) progress.schema = 1;
+    if (!progress.history) progress.history = [];
+    if (!progress.examTickets) progress.examTickets = {};
+  } catch { progress = { schema: PROGRESS_SCHEMA, history: [], examTickets: {} }; }
 }
 
 function saveProgress() {
-  localStorage.setItem(LS_PROGRESS, JSON.stringify(progress));
+  progress.schema = PROGRESS_SCHEMA;
+  try {
+    localStorage.setItem(LS_PROGRESS, JSON.stringify(progress));
+  } catch (e) {
+    console.warn('Не удалось сохранить прогресс', e);
+  }
 }
 
 function pushHistory(entry) {
@@ -268,7 +264,7 @@ function renderQuickTests() {
     <div class="bg-gradient-to-br from-amber-950/50 to-slate-800 border border-amber-600/40 rounded-2xl p-5 cursor-pointer hover:border-amber-500/60 transition"
       onclick="openExamScreen()">
       <div class="flex items-start gap-3">
-        ${materialSymbolHtml(MATERIAL_SYMBOLS.exam, 'text-3xl text-amber-300')}
+        ${emojiHtml('🎓', 'text-3xl')}
         <div class="flex-1">
           <h3 class="font-bold text-amber-300">${esc(ex.title || 'Экзамен')}</h3>
           <p class="text-slate-400 text-xs mt-1 line-clamp-2">${esc(ex.desc || '')}</p>
@@ -279,7 +275,7 @@ function renderQuickTests() {
     <div class="bg-gradient-to-br from-violet-950/50 to-slate-800 border border-violet-600/40 rounded-2xl p-5 cursor-pointer hover:border-violet-500/60 transition"
       onclick="openMarathonConfirm()">
       <div class="flex items-start gap-3">
-        ${materialSymbolHtml(MATERIAL_SYMBOLS.marathon, 'text-3xl text-violet-300')}
+        ${emojiHtml('🏃', 'text-3xl')}
         <div class="flex-1">
           <h3 class="font-bold text-violet-300">${esc(mn.title || 'Марафон')}</h3>
           <p class="text-slate-400 text-xs mt-1 line-clamp-2">${esc(mn.desc || '')}</p>
@@ -374,7 +370,7 @@ function renderExamScreen() {
   const total = ex.ticketCount || 40;
   document.getElementById('exam-header').innerHTML = `
     <div class="flex items-start gap-4">
-      ${materialSymbolHtml(MATERIAL_SYMBOLS.exam, 'text-4xl text-amber-300')}
+      ${emojiHtml('🎓', 'text-4xl')}
       <div>
         <h2 class="text-2xl font-bold">${esc(ex.title || 'Экзамен ПДД ПМР')}</h2>
         <p class="text-slate-400 text-sm mt-1">${esc(ex.desc || '')}</p>
@@ -395,7 +391,7 @@ function renderExamScreen() {
 function openExamTicketConfirm(ticketNo) {
   pendingExamTicketNo = ticketNo;
   const ex = config.exam || {};
-  document.getElementById('exam-confirm-title').innerHTML = `${materialSymbolHtml(MATERIAL_SYMBOLS.exam, 'text-2xl text-amber-300')} Билет № ${ticketNo}`;
+  document.getElementById('exam-confirm-title').innerHTML = `${emojiHtml('🎓', 'text-2xl')} Билет № ${ticketNo}`;
   document.getElementById('exam-confirm-desc').textContent = ex.desc || '';
   document.getElementById('exam-confirm-time').textContent = ex.timeMinutes || 20;
   document.getElementById('exam-confirm-count').textContent = ex.questionCount || 20;
@@ -1148,6 +1144,89 @@ function pluralErrors(n) {
   return n === 1 ? 'ошибки' : 'ошибок';
 }
 
+/* ─── GLOBAL SEARCH ─── */
+function parseSearchQuery(raw) {
+  const q = raw.trim().toLowerCase().replace(/\s+/g, ' ');
+  const points = [];
+  const re = /(?:п\.?\s*|пункт\s+|§\s*)?(\d{1,2}\.\d+(?:\.\d+)?)/gi;
+  let m;
+  while ((m = re.exec(q))) points.push(m[1]);
+  const words = q.replace(/(?:п\.?\s*|пункт\s+|§\s*)\d{1,2}\.\d+(?:\.\d+)?/gi, ' ')
+    .replace(/[^\p{L}\p{N}\s.-]/gu, ' ').split(/\s+/).filter(w => w.length > 1);
+  return { q, points: [...new Set(points)], words };
+}
+
+function openGlobalSearch() {
+  document.getElementById('global-search-modal')?.classList.remove('hidden');
+  const inp = document.getElementById('global-search-input');
+  if (inp) { inp.value = ''; inp.focus(); }
+  runGlobalSearch('');
+}
+
+function closeGlobalSearch() {
+  document.getElementById('global-search-modal')?.classList.add('hidden');
+}
+
+function searchResultRow(icon, title, sub, onclick) {
+  return `<button type="button" onclick="${onclick}" class="w-full text-left flex gap-3 items-start px-3 py-2.5 rounded-lg hover:bg-slate-700/80 transition">
+    ${emojiHtml(icon, 'text-lg shrink-0')}<div class="min-w-0"><p class="font-medium text-slate-200 truncate">${esc(title)}</p>${sub ? `<p class="text-xs text-slate-500 truncate">${esc(sub)}</p>` : ''}</div></button>`;
+}
+
+function runGlobalSearch(raw) {
+  const el = document.getElementById('global-search-results');
+  if (!el) return;
+  const { q, points, words } = parseSearchQuery(raw);
+  if (!q) {
+    el.innerHTML = '<p class="p-3 text-slate-500">Введите запрос — пункт ПДД (6.4), тему или ключевое слово</p>';
+    return;
+  }
+  if (!globalSearchIndex) {
+    el.innerHTML = '<p class="p-3 text-red-400">Индекс поиска не загружен</p>';
+    return;
+  }
+
+  const theoryPrimary = [], theoryMention = [], topics = [], questions = [];
+
+  for (const t of globalSearchIndex.theory || []) {
+    const primaryHit = points.some(p => (t.primaryPoints || t.pddPoints || []).includes(p));
+    const mentionHit = points.some(p => (t.pddPoints || []).includes(p)) || words.some(w => t.text.includes(w));
+    if (primaryHit) theoryPrimary.push(t);
+    else if (mentionHit || (points.length === 0 && words.some(w => t.title.toLowerCase().includes(w)))) theoryMention.push(t);
+  }
+
+  for (const t of globalSearchIndex.topics || []) {
+    if (words.some(w => t.text.includes(w)) || (points.length && t.text.includes(points[0]))) topics.push(t);
+  }
+
+  for (const qn of globalSearchIndex.questions || []) {
+    const pointHit = points.some(p => (qn.pddPoints || []).includes(p));
+    const wordHit = words.some(w => qn.text.includes(w));
+    if (pointHit || wordHit) questions.push(qn);
+  }
+
+  if (!theoryPrimary.length && !theoryMention.length && !topics.length && !questions.length) {
+    el.innerHTML = '<p class="p-3 text-slate-500">Ничего не найдено</p>';
+    return;
+  }
+
+  let html = '';
+  const section = (title, items, render) => {
+    if (!items.length) return '';
+    return `<p class="px-3 pt-2 pb-1 text-[10px] uppercase tracking-widest text-indigo-400 font-bold">${title}</p>${items.slice(0, 12).map(render).join('')}`;
+  };
+
+  html += section('Теория — основной пункт', theoryPrimary, t =>
+    searchResultRow('📖', t.title, points[0] ? `Пункт ${points[0]}` : '', `closeGlobalSearch();openTheory();loadTheoryChapter('${t.id}')`));
+  html += section('Темы тестов', topics, t =>
+    searchResultRow(t.icon, t.title, t.desc, `closeGlobalSearch();openTestConfirm('${t.id}')`));
+  html += section('Теория — упоминания', theoryMention, t =>
+    searchResultRow('📄', t.title, '', `closeGlobalSearch();openTheory();loadTheoryChapter('${t.id}')`));
+  html += section('Вопросы', questions, qn =>
+    searchResultRow(qn.icon, qn.preview, qn.topicTitle, `closeGlobalSearch();openTestConfirm('${qn.topicId}')`));
+
+  el.innerHTML = html;
+}
+
 /* ─── UTILS ─── */
 function esc(s) {
   if (!s) return '';
@@ -1167,6 +1246,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openGlobalSearch(); }
+    if (e.key === 'Escape') closeGlobalSearch();
+  });
+  window.addEventListener('beforeunload', () => {
+    if (state.mode === 'marathon' && state.questions.length) {
+      recordMarathonProgress(state.current, state.questions.length);
+    }
+  });
   try {
     await loadData();
     renderHome();
